@@ -6,6 +6,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Timers;
+using Timer = System.Threading.Timer;
 
 namespace Full_GRASP_And_SOLID
 {
@@ -13,6 +16,9 @@ namespace Full_GRASP_And_SOLID
     {
         // Cambiado por OCP
         private IList<BaseStep> steps = new List<BaseStep>();
+        public bool Cooked { get;  private set; } = false;
+        public bool Empezo = false;
+        
 
         public Product FinalProduct { get; set; }
 
@@ -61,6 +67,36 @@ namespace Full_GRASP_And_SOLID
             }
 
             return result;
+        }
+
+        public int GetCookTime()
+        {
+            int counter = 0;
+            foreach (var step in steps)
+            {
+                counter += step.Time;
+            }
+
+            return counter;
+        }
+
+        public void SetCooked()
+        {
+            Cooked = true;
+        }
+
+        public async void Cook()
+        {
+            if (Empezo)
+            {
+                throw new InvalidOperationException("La receta ya empezo a cocinarse");
+            }
+            int cookTime = GetCookTime();
+            await Task.Delay(cookTime);
+            Empezo = true;
+            Adaptador adaptador = new Adaptador(this);
+            adaptador.TimeOut();
+            
         }
     }
 }
